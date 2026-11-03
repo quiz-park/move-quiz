@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>무브퀴즈 온라인</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- 입장 -->
+<main id="join" class="screen active">
+  <div class="wrap">
+    <div class="logo"><h1>MOVE QUIZ</h1><p>문제를 읽고, 정답 구역으로 달려라! 실시간 퀴즈 배틀 🏃💨</p></div>
+    <div class="panel">
+      <div class="ph">🙋 내 캐릭터</div>
+      <div class="pv"><div id="pvAv">🦊</div><input id="nameIn" maxlength="10" placeholder="닉네임 (최대 10자)" autocomplete="off"></div>
+      <div id="emojiGrid"></div><div id="colorRow"></div>
+    </div>
+    <div class="two">
+      <div class="panel">
+        <div class="ph">🎟 참가하기</div>
+        <p class="hint">사회자에게 받은 숫자 4자리 코드를 입력하세요.</p>
+        <input id="codeIn" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="off">
+        <button class="btn" id="joinBtn">입장하기</button>
+      </div>
+      <div class="panel">
+        <div class="ph">🎤 사회자 (방 만들기)</div>
+        <p class="hint">방을 만들면 코드가 생겨요. 참가자에게 코드나 링크를 알려주세요.</p>
+        <button class="btn pink" id="createBtn">방 만들기</button>
+      </div>
+    </div>
+    <div class="keys">이동 <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> 또는 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> · 마우스로 클릭/드래그해도 달려가요</div>
+  </div>
+</main>
+
+<!-- 대기실 -->
+<main id="lobby" class="screen">
+  <div class="wrap">
+    <div class="panel codebox">
+      <div><div class="hint">방 코드</div><div id="roomCode">----</div></div>
+      <div class="sp"></div>
+      <button class="btn sm sec" id="copyLink">🔗 초대 링크 복사</button>
+    </div>
+    <div class="panel"><div class="ph">👥 참가자 <span id="pcount" class="chip"></span></div><div id="plist"></div></div>
+    <div id="hostBox">
+      <div class="panel">
+        <div class="ph">📚 퀴즈 선택</div><div id="quizGrid"></div>
+        <details><summary>🤖 내 퀴즈 불러오기 (JSON)</summary>
+          <p class="hint">AI에게 "OX·4지선다 퀴즈 10개를 JSON으로 만들어줘"라고 시키고 결과를 붙여넣으세요.<br>형식: <code>{"title":"제목","questions":[{"q":"문제","type":"ox","answer":"O"},{"q":"문제","type":"mc","choices":["가","나","다","라"],"answer":2}]}</code></p>
+          <textarea id="jsonIn" rows="5" placeholder="여기에 JSON 붙여넣기"></textarea>
+          <button class="btn sm sec" id="jsonBtn">불러오기</button>
+        </details>
+      </div>
+      <div class="panel">
+        <div class="ph">⚙️ 게임 설정</div>
+        <div class="seg" id="modeSeg"><button data-v="survival">💀 서바이벌</button><button data-v="points">⭐ 포인트전</button></div>
+        <p class="hint" id="modeHint"></p>
+        <label class="row"><span>문제·보기 섞기</span><span class="sw"><input type="checkbox" id="shuffleChk"><i></i></span></label>
+      </div>
+      <div class="startbar"><button class="btn big" id="startBtn">🚀 게임 시작</button></div>
+    </div>
+    <div id="waitBox" class="panel center" hidden>⏳ 사회자가 게임을 시작하길 기다리는 중...<div class="hint" id="waitInfo"></div></div>
+    <div class="center"><button class="btn sm sec" id="leaveBtn">← 나가기</button></div>
+  </div>
+</main>
+
+<!-- 게임 -->
+<main id="game" class="screen">
+  <header id="hud">
+    <div class="hl"><span id="qno">-</span><span class="chip" id="modeChip"></span></div>
+    <div id="qtext">잠시 후 시작합니다</div>
+    <div class="hr"><div id="alive"></div><div class="ring" id="ring"><b id="timer">-</b></div></div>
+  </header>
+  <div id="tbar"><i></i></div>
+  <section id="gmain">
+    <div id="stage"><canvas id="cv"></canvas><div class="banner" id="banner"></div></div>
+    <aside id="side"><div class="sbox" id="rankBox"></div><div class="sbox" id="distBox"></div></aside>
+  </section>
+  <footer id="gfoot">
+    <div id="expl">정답 구역으로 달려가세요!</div>
+    <div class="tools"><button data-r="👍">👍</button><button data-r="😂">😂</button><button data-r="😱">😱</button><button data-r="🤔">🤔</button><button data-r="🔥">🔥</button><button id="sndBtn">🔊</button></div>
+  </footer>
+</main>
+
+<!-- 결과 -->
+<main id="result" class="screen">
+  <canvas id="fx"></canvas>
+  <div class="wrap narrow">
+    <h2 id="resTitle">게임 종료!</h2><div class="hint center" id="resSub"></div>
+    <div id="podium"></div><div class="myTitle" id="myTitle"></div>
+    <div id="sumBox"></div>
+    <div class="panel" id="rankList"></div>
+    <div class="rb"><button class="btn" id="againBtn">🔁 한 판 더 (사회자)</button><button class="btn sec" id="lobbyBtn">🏠 대기실로</button></div>
+    <p class="hint center" id="againHint"></p>
+  </div>
+</main>
+
+<div id="toast"></div>
+<script src="client.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
